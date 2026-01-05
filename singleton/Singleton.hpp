@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <atomic>
 #include <new>
-#include <type_traits>
 
 /*
 This is singleton as it should be implemented using preallocated static storage.
