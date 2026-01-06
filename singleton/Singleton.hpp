@@ -1,5 +1,5 @@
-#ifndef _CPP_BITS_SINGLETON_H_
-#define _CPP_BITS_SINGLETON_H_
+#ifndef _CPPBITS_SINGLETON_HPP_
+#define _CPPBITS_SINGLETON_HPP_
 
 #include <cstdint>
 #include <atomic>
@@ -111,4 +111,4 @@ template <typename Type> std::atomic<Type*> Singleton<Type>::ptr{};
 
 } //namespace cppbits
 
-#endif // _CPP_BITS_SINGLETON_H_
+#endif // _CPPBITS_SINGLETON_HPP_
