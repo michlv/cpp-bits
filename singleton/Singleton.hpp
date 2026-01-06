@@ -94,7 +94,7 @@ class Singleton {
     static_assert(std::is_trivially_destructible_v<decltype(storage)>, "Singleton::storage must be trivially destructible.");
     static_assert(std::is_trivially_destructible_v<decltype(ptr)>, "Singleton::ptr must be trivially destructible.");
 
-#if __cplusplus >= 202002L
+#if defined(__cpp_concepts) && __cpp_concepts >= 201907L
     static_assert(requires(Type t) {t.__stop__();}, "Singleton: Type must implement a 'void __stop__()' method.");
 #endif
 
