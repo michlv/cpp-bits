@@ -100,7 +100,7 @@ class Singleton {
 
 public:
     static Type& instance() {
-        if (ptr)
+        if (ptr.load(std::memory_order_acquire))
             return *ptr;
         return create();
     };
