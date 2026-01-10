@@ -50,8 +50,8 @@ public:
 protected:
     using _TwoStageInit_Call = std::function<void()>;
     
-    void addTwoStageInitPostConstructCall(_TwoStageInit_Call call) {_TwoStageInit_postConstructCalls.push_back(call);};
-    void addTwoStageInitPreDestructCall(_TwoStageInit_Call call) {_TwoStageInit_preDestructCalls.push_back(call);};
+    void addTwoStageInitPostConstructCall(_TwoStageInit_Call call) {_TwoStageInit_postConstructCalls.push_back(std::move(call));};
+    void addTwoStageInitPreDestructCall(_TwoStageInit_Call call) {_TwoStageInit_preDestructCalls.push_back(std::move(call));};
     
 private:
     friend class impl::TwoStageInitCaller;
