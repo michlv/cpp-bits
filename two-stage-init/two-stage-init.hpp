@@ -44,7 +44,7 @@ namespace impl {
 class TwoStageInitCaller;
 };
 
-class TwoStageInitVirtualBase {
+class TwoStageInitVirtualBase : public boost::noncopyable {
 public:
     virtual ~TwoStageInitVirtualBase() = default;
     
