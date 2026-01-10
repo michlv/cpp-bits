@@ -19,10 +19,10 @@
 
  Class B can register for events, in construcor and deregister in destructor safely. Like:
  
- class B : public A, public cppbits::TwoStageInitVirtualBase {
+ class B : public A, virtual public cppbits::TwoStageInitVirtualBase {
      B() : A() {
-         __addTwoStageInitPostConstructCall__([this](){ registration_call ;});
-         __addTwoStageInitPreDestructCall__([this](){ de-registration_call ;});
+         addTwoStageInitPostConstructCall([this](){ registration_call ;});
+         addTwoStageInitPreDestructCall([this](){ de-registration_call ;});
      };
  }
  
@@ -31,9 +31,10 @@
  TwoStageInit<C> c;
  
  Once the object is constructed, all the constructors will be executed until the whole object hierarchy is fully initialised.
- Only afterwards, the Post registered calls, will be executed in the order of the original constructors.
+ Only afterwards, the PostConstruct registered calls, will be executed in the order of the original constructors.
  
- Before destruction, all the registered pre destruct calls will be called, before the actual object destructors.
+ Before destruction, all the registered PreDestruct calls will be called, in the oppsite order of PostConstruct calls,
+ before the actual object destructors.
 
 */
 
