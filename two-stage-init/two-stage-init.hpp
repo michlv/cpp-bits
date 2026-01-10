@@ -1,6 +1,7 @@
 #ifndef _CPPBITS_TWOSTAGEINIT_H_
 #define _CPPBITS_TWOSTAGEINIT_H_
 
+#include <type_traits>
 #include <vector>
 #include <boost/range/adaptor/reversed.hpp>
 #include <functional>
@@ -47,62 +48,64 @@ public:
     virtual ~TwoStageInitVirtualBase() = default;
     
 protected:
-    using __TwoStageInitCall__ = std::function<void()>;
+    using _TwoStageInit_Call = std::function<void()>;
     
-    void __addTwoStageInitPostConstructCall__(__TwoStageInitCall__ call) {__postConstructCalls__.push_back(call);};
-    void __addTwoStageInitPreDestructCall__(__TwoStageInitCall__ call) {__preDestructCalls__.push_back(call);};
+    void addTwoStageInitPostConstructCall(_TwoStageInit_Call call) {_TwoStageInit_postConstructCalls.push_back(call);};
+    void addTwoStageInitPreDestructCall(_TwoStageInit_Call call) {_TwoStageInit_preDestructCalls.push_back(call);};
     
 private:
     friend class impl::TwoStageInitCaller;
     
-    void __executePostConstructCalls__() const { for (auto &c: __postConstructCalls__) { c(); }; };
-    void __executePreDestructCalls__() const { for (auto &d: boost::adaptors::reverse(__preDestructCalls__)) { d(); }; };
+    void _TwoStageInit_executePostConstructCalls() const { for (auto &c: _TwoStageInit_postConstructCalls) { c(); }; };
+    void _TwoStageInit_executePreDestructCalls() const { for (auto &d: boost::adaptors::reverse(_TwoStageInit_preDestructCalls)) { d(); }; };
     
-    using __TwoStageInitCalls__ = std::vector<__TwoStageInitCall__>;
-    __TwoStageInitCalls__ __postConstructCalls__;
-    __TwoStageInitCalls__ __preDestructCalls__;
+    using _TwoStageInit_Calls = std::vector<_TwoStageInit_Call>;
+    _TwoStageInit_Calls _TwoStageInit_postConstructCalls;
+    _TwoStageInit_Calls _TwoStageInit_preDestructCalls;
     
     // Make sure that classes inherited from this one, are constructed using the wrapper.
-    virtual void __use_TwoStageInit_wrapper_to_construct__() = 0;
+    virtual void _use_TwoStageInit_wrapper_to_construct_() = 0;
 };
 
 
 namespace impl {
 
 class TwoStageInitCaller : public boost::noncopyable {
-    const TwoStageInitVirtualBase &__b__;
+    const TwoStageInitVirtualBase &_TwoStageInit_base;
     
 protected:
-    TwoStageInitCaller(const TwoStageInitVirtualBase *b) : __b__(*b) {
-        __b__.__executePostConstructCalls__();
+    TwoStageInitCaller(const TwoStageInitVirtualBase *b) : _TwoStageInit_base(*b) {
+        _TwoStageInit_base._TwoStageInit_executePostConstructCalls();
     }
     ~TwoStageInitCaller() {
-        __b__.__executePreDestructCalls__();
+        _TwoStageInit_base._TwoStageInit_executePreDestructCalls();
     }
 };
 } // namespace impl
 
 template <typename T>
 class TwoStageInit final : public T, protected impl::TwoStageInitCaller {
+    static_assert(std::is_base_of<TwoStageInitVirtualBase, T>::value, "T must inherit from TwoStageInitVirtualBase to use the TwoStageInit wrapper.");
 public:
     template <typename... Args>
     TwoStageInit(Args&&... args) : T(std::forward<Args>(args)...), impl::TwoStageInitCaller(this) {};
     
 private:
     // Silence compiler warning about undefined method.
-    void __use_TwoStageInit_wrapper_to_construct__() {};
+    void _use_TwoStageInit_wrapper_to_construct_() override {};
     
 };
 
 template <typename T, typename F1, typename F2 = void, typename F3 = void, typename F4 = void>
 class TwoStageInitRestricted final : public T, protected impl::TwoStageInitCaller {
+    static_assert(std::is_base_of<TwoStageInitVirtualBase, T>::value, "T must inherit from TwoStageInitVirtualBase to use the TwoStageInit wrapper.");
 private:
     template <typename... Args>
     TwoStageInitRestricted(Args&&... args) : T(std::forward<Args>(args)...), impl::TwoStageInitCaller(this) {};
     
 private:
     // Silence compiler warning about undefined method.
-    void __use_TwoStageInit_wrapper_to_construct__() {};
+    void _use_TwoStageInit_wrapper_to_construct_() override {};
     
     friend F1;
     friend F2;
@@ -112,13 +115,14 @@ private:
 
 template <typename T, template <typename> class F1>
 class TwoStageInitRestrictedT final : public T, protected impl::TwoStageInitCaller {
+    static_assert(std::is_base_of<TwoStageInitVirtualBase, T>::value, "T must inherit from TwoStageInitVirtualBase to use the TwoStageInit wrapper.");
 private:
     template <typename... Args>
     TwoStageInitRestrictedT(Args&&... args) : T(std::forward<Args>(args)...), impl::TwoStageInitCaller(this) {};
     
 private:
     // Silence compiler warning about undefined method.
-    void __use_TwoStageInit_wrapper_to_construct__() {};
+    void _use_TwoStageInit_wrapper_to_construct_() override {};
     
     friend F1<TwoStageInitRestrictedT<T, F1> >;
 };
